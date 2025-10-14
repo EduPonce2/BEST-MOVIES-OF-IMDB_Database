@@ -11,16 +11,16 @@
 
 # EXPLICACION SOBRE COMO FUIMOS ARMANDO LA BASE DE DATOS ✍🏻
 Comenzamos creando la base de datos junto con sus tablas de la siguiente manera: 
-### 1) tabla director
+### 1) Tabla Director
 
 ``` sql
-CREATE TABLE director(
+CREATE TABLE director (
 id INT NOT NULL auto_increment PRIMARY KEY,
 dir_name VARCHAR(100) NOT NULL UNIQUE
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-### 2) tabla genero
+### 2) Tabla Genero
 
 ``` sql
 CREATE TABLE genre (
@@ -28,7 +28,7 @@ id INT NOT NULL auto_increment PRIMARY KEY,
 gen_name VARCHAR(100) NOT NULL UNIQUE
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
-### 3) tabla actor
+### 3) Tabla Actor
 
 ``` sql
 CREATE TABLE actor (
@@ -37,10 +37,10 @@ act_name VARCHAR(100) NOT NULL UNIQUE
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-### 4) tabla peliculas
+### 4) Tabla Peliculas
 
 ``` sql
-CREATE TABLE  movie(
+CREATE TABLE  movie (
 id INT NOT NULL auto_increment PRIMARY KEY,
 title VARCHAR(255) NOT NULL,
 mov_year SMALLINT NOT NULL,
