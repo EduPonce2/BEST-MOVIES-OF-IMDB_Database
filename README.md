@@ -4,12 +4,14 @@
 ### Con este proyecto podremos ver las peliculas mejor valoradas según IMDB. 
 ### El .csv lo descargamos directamente de la pagina kaggle.com 
 # INSTALACION📥
-###  1) clonar el repositorio con: https://github.com/EduPonce2/BEST-MOVIES-OF-IMDB_Database.git
-### 2) Cargar el scrpt o archivo sql  en el repositorio de su base de datos de preferencia 
+###  1) Clonar el repositorio con: 
+git clone https://github.com/EduPonce2/BEST-MOVIES-OF-IMDB_Database.git
+### 2) Cargar el script o archivo sql  en el repositorio de su base de datos de preferencia 
 # DIAGRAMA ENTIDAD-RELACION
 ![ERD Movies](img/diagrama.png)
 
 # EXPLICACION SOBRE COMO FUIMOS ARMANDO LA BASE DE DATOS ✍🏻
+explicacion de importacion de .csv
 Comenzamos creando la base de datos junto con sus tablas de la siguiente manera: 
 ### 1) Tabla Director
 
@@ -55,7 +57,7 @@ CONSTRAINT uq_movie_title_year UNIQUE (title, mov_year)
 
 ## Luego Seguimos con sus Relaciones 😯
 
-### 1)
+### 1) Tabla intermedia Pelicula Actor
 ``` sql
  CREATE TABLE movie_actor (
 movie_id INT NOT NULL,
@@ -66,7 +68,7 @@ PRIMARY KEY (movie_id, actor_id)
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-### 2)
+### 2) Tabla intermedia Pelicula Género
 ``` sql
 CREATE TABLE movie_genre (
 genre_id INT NOT NULL,
@@ -241,6 +243,6 @@ La segunda vincula los actores con sus películas, creando relaciones en movie_a
 ## **Tabla Genre(Género)**
 El .csv que descargamos tenia 6 culumnas: name, genre, description, duration, rating, director, stars. Y eso traia ciertas complicaciones consigo, ya que las columnas genre y stars venian con varias campos que eran distintos entre si. Una pelicula en general tiene mas de un genero, por ejemplo, drama, terror, accion, entoces habia que cargar cada palabra de genero como uno distinto y separarlo, dandole un id a cada genero, por eso en el punto de carga de genero se hizo el paso que se muestra mas arriba. Esta sentencia lo que hace es identificarlos, separarlos, evitar duplicados, y luego relacionarlo a 'movie' separando por comas cada id del genero y de esta forma, creando la relacion entre la tabla Genre y Movie. 
 
-## TABLA ACTOR
-Continuando con el.csv tenia una columna stars, pero con la compllicacion de que tenia tres actores por peliculas. Los actores que aparecen pueden tener: nombre y apellido; dos nombres y un apellido o un solo nombre. Esto complicaba mucho la carga de esos datos a la tabla, a diferencia de generos, no se podia realizar la carga separando por espacios. La solucion que le encontramos fue separar manualmente cada actor por "#", esto lo hicimos usando VS Code como editor de texto, si habia actores de peliculas que no conociamos lo investigabamos para evitar errores en la carga, de esta forma cuando hicimos la carga de cada actor relacionado a su pelicula correspondiente. 
+## **TABLA ACTOR**
+Continuando con el .csv, éste tenia una columna stars, pero con la complicacion de que tenia tres actores por peliculas. Los actores que aparecen pueden tener: nombre y apellido; dos nombres y un apellido o un solo nombre. Esto complicaba mucho la carga de esos datos a la tabla, a diferencia de generos, no se podia realizar la carga separando por espacios. La solucion que le encontramos fue separar manualmente cada actor por "#", esto lo hicimos usando VS Code como editor de texto, si habia actores de peliculas que no conociamos lo investigabamos para evitar errores en la carga, de esta forma cuando hicimos la carga de cada actor relacionado a su pelicula correspondiente. 
 Lo que se hizo fue crear una tabla temporal que haga la separacion de los actores por # y les asigne un id a cada uno, y luego despues desde esa tabla temporal crear la tabla actor y cargarle esos datos, evitando duplicados y asignando las relaciones a cada pelicula.
