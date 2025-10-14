@@ -4,7 +4,7 @@
 ### Con este proyecto podremos ver las peliculas mejor valoradas según IMDB. 
 ### El .csv lo descargamos directamente de la pagina kaggle.com 
 # INSTALACION📥
-###  1) clonar el repositorio con: .... 
+###  1) clonar el repositorio con: https://github.com/EduPonce2/BEST-MOVIES-OF-IMDB_Database.git
 ### 2) Cargar el scrpt o archivo sql  en el repositorio de su base de datos de preferencia 
 # DIAGRAMA ENTIDAD-RELACION
 ![ERD Movies](img/diagrama.png)
