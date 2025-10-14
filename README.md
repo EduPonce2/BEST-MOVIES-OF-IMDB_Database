@@ -13,29 +13,34 @@
 Comenzamos creando la base de datos junto con sus tablas de la siguiente manera: 
 ### 1) tabla director
 
-create table director(
+``` sql
+CREATE TABLE director(
 id int not null auto_increment primary key,
 dir_name varchar(100) not null unique
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
 
 ### 2) tabla genero
 
-create table genre (
+``` sql
+CREATE TABLE genre (
 id int not null auto_increment primary key,
 gen_name varchar(100) not null unique
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
+```
 ### 3) tabla actor
 
-create table actor (
+``` sql
+CREATE TABLE actor (
 id int not null auto_increment primary key,
 act_name varchar(100) not null unique
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
 
 ### 4) tabla peliculas
 
-
-create table movie(
+``` sql
+CREATE TABLE  movie(
 id int not null auto_increment primary key,
 title varchar(255) not null,
 mov_year smallint not null,
@@ -46,35 +51,42 @@ director_id int not null,
 foreign key(director_id) references director (id),
 CONSTRAINT uq_movie_title_year UNIQUE (title, mov_year)
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
 
 ## Luego seguimos con sus relaciones 😯
 
 ### 1)
- create table movie_actor (
+``` sql
+ CREATE TABLE movie_actor (
 movie_id int not null,
 foreign key (movie_id) references movie(id),
 actor_id int not null,
 foreign key (actor_id) references actor(id),
 primary key (movie_id, actor_id)
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
 
 ### 2)
-create table movie_genre (
+``` sql
+CREATE TABLE movie_genre (
 genre_id int not null,
 movie_id int not null,
 foreign key (genre_id) references genre(id),
 foreign key (movie_id) references movie(id),
 primary key(movie_id, genre_id)
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
 
 # 🧩 EXPLICACION DE LOS SCRIPTS SQL 
 ## Este conjunto de sentencias SQL se utiliza para limpiar, normalizar y poblar las tablas del modelo relacional a partir de los datos crudos almacenados en movies_cruda.
 
 ### 🎬 1️⃣ Inserción de Directores 
 
+``` sql
 INSERT INTO director (dir_name)
 SELECT DISTINCT TRIM(director)
 FROM movies_cruda;
+```
 
 Extrae los nombres de los directores desde movies_cruda.
 Elimina duplicados (DISTINCT) y espacios en blanco (TRIM).
@@ -82,6 +94,7 @@ Inserta cada director único en la tabla director.
 
 ### 🎭 2️⃣ Inserción de Géneros
 
+``` sql
 INSERT IGNORE INTO genre (gen_name)
 SELECT DISTINCT TRIM(j.g) AS gen_name
 FROM movies_cruda r
@@ -99,6 +112,7 @@ JOIN JSON_TABLE(
 ) AS j
 WHERE r.genre IS NOT NULL AND r.genre <> ''
   AND j.g <> '';
+```
 
 Descompone los géneros (que pueden venir en una sola celda) usando JSON_TABLE.
 Limpia espacios y genera una fila por cada género.
@@ -107,6 +121,7 @@ El INSERT IGNORE evita duplicados.
 
 ### 🎥 3️⃣ Inserción de Películas
 
+``` sql
 INSERT INTO movie (title, mov_year, score, duration, synopsis, director_id)
 SELECT
   r.name AS title,
@@ -118,6 +133,7 @@ SELECT
 FROM movies_cruda r
 JOIN director d
   ON d.dir_name COLLATE utf8mb4_unicode_ci = TRIM(r.director) COLLATE utf8mb4_unicode_ci;
+  ```
 
 Inserta los datos de cada película, convirtiendo:
 rating → número decimal (DECIMAL(3,1)).
@@ -126,6 +142,7 @@ Asocia cada película a su director mediante director_id.
 
 ### 🎞️ 4️⃣ Relación Película ↔ Género
 
+``` sql
 INSERT IGNORE INTO movie_genre (movie_id, genre_id)
 SELECT
   m.id AS movie_id,
@@ -146,6 +163,7 @@ JOIN genre g
   ON g.gen_name COLLATE utf8mb4_unicode_ci = jt.gname COLLATE utf8mb4_unicode_ci
 WHERE r.genre IS NOT NULL AND r.genre <> '' 
   AND jt.gname <> '';
+  ```
 
 Une cada película con todos sus géneros.
 Si una película tiene varios géneros, genera una fila por cada combinación.
@@ -153,11 +171,13 @@ Usa INSERT IGNORE para evitar duplicados.
 
 ### 👥 5️⃣ Creación de Tabla Temporal de Actores
 
+``` sql
 DROP TEMPORARY TABLE IF EXISTS _actors_temp;
 CREATE TEMPORARY TABLE _actors_temp (
   movie_id INT,
   actor_name VARCHAR(255)
 );
+```
 
 Crea una tabla temporal que almacenará los pares película - actor.
 Se usa como paso intermedio antes de insertar los datos finales.
@@ -165,6 +185,7 @@ Mas adelante explicaremos por qué fue necesario este paso.
 
 ### 🌟 6️⃣ Poblar la Tabla Temporal
 
+``` sql
 INSERT INTO _actors_temp (movie_id, actor_name)
 SELECT
   m.id AS movie_id,
@@ -182,28 +203,32 @@ JOIN JSON_TABLE(
   '$[*]' COLUMNS (actor VARCHAR(255) PATH '$')
 ) AS j
 WHERE TRIM(j.actor) <> '';
+```
 
 Extrae los actores del campo stars, que viene separado por #.
 Limpia los valores y crea una fila por cada actor con su película correspondiente.
 
 ### 🔍 7️⃣ Verificación de la Carga
 
+``` sql
 SELECT * FROM _actors_temp ORDER BY movie_id, actor_name LIMIT 20;
 SELECT COUNT(*) FROM _actors_temp;
+``` 
 
 Permite verificar visualmente que los datos de la tabla temporal se cargaron correctamente y contar la cantidad total de registros.
 
 ### 🎬 8️⃣ Inserción Final de Actores y Relaciones
 
+``` sql
 INSERT IGNORE INTO actor (act_name)
 SELECT DISTINCT actor_name FROM _actors_temp;
-
 INSERT IGNORE INTO movie_actor (movie_id, actor_id)
 SELECT t.movie_id, a.id
 FROM _actors_temp t
 JOIN actor a
   ON TRIM(a.act_name) COLLATE utf8mb4_unicode_ci
    = TRIM(t.actor_name) COLLATE utf8mb4_unicode_ci;
+   ```
 
 Inserta todos los actores únicos en la tabla actor.
 
