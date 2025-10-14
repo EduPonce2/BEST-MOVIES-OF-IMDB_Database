@@ -53,7 +53,7 @@ CONSTRAINT uq_movie_title_year UNIQUE (title, mov_year)
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-## Luego seguimos con sus relaciones 😯
+## Luego Seguimos con sus Relaciones 😯
 
 ### 1)
 ``` sql
