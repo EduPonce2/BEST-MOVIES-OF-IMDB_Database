@@ -15,8 +15,8 @@ Comenzamos creando la base de datos junto con sus tablas de la siguiente manera:
 
 ``` sql
 CREATE TABLE director(
-id int not null auto_increment primary key,
-dir_name varchar(100) not null unique
+id INT NOT NULL auto_increment PRIMARY KEY,
+dir_name VARCHAR(100) NOT NULL UNIQUE
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
@@ -24,16 +24,16 @@ dir_name varchar(100) not null unique
 
 ``` sql
 CREATE TABLE genre (
-id int not null auto_increment primary key,
-gen_name varchar(100) not null unique
+id INT NOT NULL auto_increment PRIMARY KEY,
+gen_name VARCHAR(100) NOT NULL UNIQUE
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 ### 3) tabla actor
 
 ``` sql
 CREATE TABLE actor (
-id int not null auto_increment primary key,
-act_name varchar(100) not null unique
+id INT NOT NULL auto_increment PRIMARY KEY,
+act_name VARCHAR(100) NOT NULL UNIQUE
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
@@ -41,14 +41,14 @@ act_name varchar(100) not null unique
 
 ``` sql
 CREATE TABLE  movie(
-id int not null auto_increment primary key,
-title varchar(255) not null,
-mov_year smallint not null,
-score decimal(3,1) not null,
-duration int not null, 
-synopsis text,
-director_id int not null,
-foreign key(director_id) references director (id),
+id INT NOT NULL auto_increment PRIMARY KEY,
+title VARCHAR(255) NOT NULL,
+mov_year SMALLINT NOT NULL,
+score DECIMAL(3,1) NOT NULL,
+duration INT NOT NULL, 
+synopsis TEXT,
+director_id INT NOT NULL,
+FOREIGN KEY(director_id) REFERENCES director (id),
 CONSTRAINT uq_movie_title_year UNIQUE (title, mov_year)
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
@@ -58,22 +58,22 @@ CONSTRAINT uq_movie_title_year UNIQUE (title, mov_year)
 ### 1)
 ``` sql
  CREATE TABLE movie_actor (
-movie_id int not null,
-foreign key (movie_id) references movie(id),
-actor_id int not null,
-foreign key (actor_id) references actor(id),
-primary key (movie_id, actor_id)
+movie_id INT NOT NULL,
+FOREIGN KEY (movie_id) REFERENCES movie(id),
+actor_id INT NOT NULL,
+FOREIGN KEY (actor_id) REFERENCES actor(id),
+PRIMARY KEY (movie_id, actor_id)
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 ### 2)
 ``` sql
 CREATE TABLE movie_genre (
-genre_id int not null,
-movie_id int not null,
-foreign key (genre_id) references genre(id),
-foreign key (movie_id) references movie(id),
-primary key(movie_id, genre_id)
+genre_id INT NOT NULL,
+movie_id INT NOT NULL,
+FOREIGN KEY (genre_id) REFERENCES genre(id),
+FOREIGN KEY (movie_id) REFERENCES movie(id),
+PRIMARY KEY(movie_id, genre_id)
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
@@ -222,6 +222,9 @@ Permite verificar visualmente que los datos de la tabla temporal se cargaron cor
 ``` sql
 INSERT IGNORE INTO actor (act_name)
 SELECT DISTINCT actor_name FROM _actors_temp;
+``` 
+
+```sql
 INSERT IGNORE INTO movie_actor (movie_id, actor_id)
 SELECT t.movie_id, a.id
 FROM _actors_temp t
@@ -230,10 +233,9 @@ JOIN actor a
    = TRIM(t.actor_name) COLLATE utf8mb4_unicode_ci;
    ```
 
-Inserta todos los actores únicos en la tabla actor.
-
-Crea las relaciones muchos a muchos entre películas y actores en la tabla movie_actor.
-
+Estas sentencias sirven para migrar datos desde una tabla temporal _actors_temp hacia el modelo final de base de datos:
+La primera carga los actores nuevos.
+La segunda vincula los actores con sus películas, creando relaciones en movie_actor.
 # 🚨 ERRORES O PROBLEMAS QUE APARECIERON 🚨
 
 ## **Tabla Genre(Género)**
