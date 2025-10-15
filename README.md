@@ -1,18 +1,43 @@
 # *🍿 IMDb Top 250 Database 🍿*
 ## 🤔 DESCRIPCIÓN 🤔
-### En esta base de datos vamos a poder mostrar los datos de forma .csv para luego poder ir cargando todo en una base de datos, estaremos usando como motor MySQL. 
-### Con este proyecto podremos ver las peliculas mejor valoradas según IMDB. 
-### El .csv lo descargamos directamente de la pagina kaggle.com 
+En este trabajo estaremos mostrando el paso a paso del diseño, normalizacion y creacion de una base de datos de las 250 mejores peliculas de la historia segun IMDb actualizadas hasta el año 2024,  esto se va a crear desde un CSV descargado de una pagina de bases de datos libres.
+
+El .csv lo descargamos directamente de la pagina kaggle.com 
 # INSTALACION📥
 ###  1) Clonar el repositorio con: 
+```bash
 git clone https://github.com/EduPonce2/BEST-MOVIES-OF-IMDB_Database.git
+```
 ### 2) Cargar el script o archivo sql  en el repositorio de su base de datos de preferencia 
 # DIAGRAMA ENTIDAD-RELACION
 ![ERD Movies](img/diagrama.png)
 
 # EXPLICACION SOBRE COMO FUIMOS ARMANDO LA BASE DE DATOS ✍🏻
-explicacion de importacion de .csv
-Comenzamos creando la base de datos junto con sus tablas de la siguiente manera: 
+Después de descargar el .csv, lo que hicimos fue exportarlo a MySQL WORKBENCH, lo que se hace para importarlo es lo siguiente:
+-Crear la base de datos con:
+```sql
+CREATE DATABASE movies;
+```
+- Una vez creada la base de datos, en el panel lateral de Workbench, hacer click derecho en la seccion que dice 'Tables' que pertenece a la DB que hemos creado y elegir la opcion 'Table Data Import Wizard'.
+
+- Elegir el .csv desde el boton 'Browse', una vez elegido confirmar con 'Next'. 
+- Confirmar que estamos cargando en la base de datos que hemos creado, darle un nombre a la tabla que se va a crear, en nuestro caso le pusimos 'movies_cruda'.
+
+- Al confirmar el paso anterior nos pasa a la siguiente pantalla donde vemos las columnas que se crean a partir del csv, pero hay que confirmar que está bien configurada la forma de crear de Workbench, esto lo hacemos apretando el boton con 🔧 y la configuracion debe ser la siguiente para evitar errores:
+    ``` 
+    Field Separator: ,
+
+    Line Separator: LF
+
+    Enclose Strings in: "
+
+    null and NULL as SQL keyword: YES
+    ```
+
+- Por ultimo, corroboramos que existan todas las columnas de nuestra tabla, le damos 'Next' y se nos crea la tabla cruda de la cual luego vamos a ir sacando los datos para poblar las tablas reales de nuestra DB.
+
+
+### Creamos las tablas de la siguiente forma: 
 ### 1) Tabla Director
 
 ``` sql
@@ -55,7 +80,7 @@ CONSTRAINT uq_movie_title_year UNIQUE (title, mov_year)
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-## Luego Seguimos con sus Relaciones 😯
+## Seguimos con sus Relaciones 🔗
 
 ### 1) Tabla intermedia Pelicula Actor
 ``` sql
@@ -80,7 +105,7 @@ PRIMARY KEY(movie_id, genre_id)
 ```
 
 # 🧩 EXPLICACION DE LOS SCRIPTS SQL 
-## Este conjunto de sentencias SQL se utiliza para limpiar, normalizar y poblar las tablas del modelo relacional a partir de los datos crudos almacenados en movies_cruda.
+ Este conjunto de sentencias SQL se utiliza para limpiar, normalizar y poblar las tablas del modelo relacional a partir de los datos crudos almacenados en movies_cruda.
 
 ### 🎬 1️⃣ Inserción de Directores 
 
@@ -240,9 +265,48 @@ La primera carga los actores nuevos.
 La segunda vincula los actores con sus películas, creando relaciones en movie_actor.
 # 🚨 ERRORES O PROBLEMAS QUE APARECIERON 🚨
 
-## **Tabla Genre(Género)**
-El .csv que descargamos tenia 6 culumnas: name, genre, description, duration, rating, director, stars. Y eso traia ciertas complicaciones consigo, ya que las columnas genre y stars venian con varias campos que eran distintos entre si. Una pelicula en general tiene mas de un genero, por ejemplo, drama, terror, accion, entoces habia que cargar cada palabra de genero como uno distinto y separarlo, dandole un id a cada genero, por eso en el punto de carga de genero se hizo el paso que se muestra mas arriba. Esta sentencia lo que hace es identificarlos, separarlos, evitar duplicados, y luego relacionarlo a 'movie' separando por comas cada id del genero y de esta forma, creando la relacion entre la tabla Genre y Movie. 
+## 🧩 Tabla Genre (Género)
 
-## **TABLA ACTOR**
-Continuando con el .csv, éste tenia una columna stars, pero con la complicacion de que tenia tres actores por peliculas. Los actores que aparecen pueden tener: nombre y apellido; dos nombres y un apellido o un solo nombre. Esto complicaba mucho la carga de esos datos a la tabla, a diferencia de generos, no se podia realizar la carga separando por espacios. La solucion que le encontramos fue separar manualmente cada actor por "#", esto lo hicimos usando VS Code como editor de texto, si habia actores de peliculas que no conociamos lo investigabamos para evitar errores en la carga, de esta forma cuando hicimos la carga de cada actor relacionado a su pelicula correspondiente. 
-Lo que se hizo fue crear una tabla temporal que haga la separacion de los actores por # y les asigne un id a cada uno, y luego despues desde esa tabla temporal crear la tabla actor y cargarle esos datos, evitando duplicados y asignando las relaciones a cada pelicula.
+El archivo .csv original contenía las siguientes columnas:
+name, genre, description, duration, rating, director, stars.
+
+El primer problema surgió porque la columna genre contenía múltiples valores dentro de una misma celda, es decir, una película podía tener más de un género (por ejemplo: Drama, Adventure, Sci-Fi).
+Esto violaba el principio de atomicidad de las bases de datos relacionales, donde cada campo debe contener un único valor.
+
+Para resolverlo:
+
+- Se creó la tabla genre con un campo gen_name único (UNIQUE), garantizando que no existan géneros duplicados.
+
+- Luego, se extrajeron todos los valores distintos de la columna genre del CSV, separándolos por comas y eliminando repeticiones.
+
+- Finalmente, se generó la tabla intermedia movie_genre, que relaciona cada película con sus respectivos géneros mediante los id de ambas tablas.
+
+Este proceso permitió normalizar los datos, asegurando una relación muchos a muchos (N:M) entre películas y géneros, donde una película puede pertenecer a varios géneros y un género puede aplicarse a varias películas.
+
+## 🎭 Tabla Actor
+
+La columna stars del CSV presentaba un desafío mayor.
+Cada película incluía tres actores en una misma celda, y estos podían tener diferentes estructuras de nombre:
+
+- un nombre y un apellido (Leonardo DiCaprio),
+
+- dos nombres y un apellido o apellido compuesto (Robert Downey Jr. o Robert De Niro),
+
+- o incluso un solo nombre artístico (Zendaya).
+
+Esto imposibilitaba separar los actores simplemente usando espacios o comas, ya que se podía confundir partes de nombres compuestos.
+
+🔧 Solución implementada
+
+Se editó manualmente el CSV usando Visual Studio Code, agregando un carácter separador personalizado # entre los nombres de los actores (por ejemplo:
+Tom Holland#Zendaya#Benedict Cumberbatch).
+Este símbolo fue elegido porque no aparecía en ningún nombre real y permitía separar los valores con precisión.
+
+En SQL, se creó una tabla temporal para dividir la columna stars usando el separador #.
+A partir de esa división:
+
+- Se generó una lista limpia de actores,
+
+- Se insertaron en la tabla actor evitando duplicados (gracias al campo UNIQUE en act_name), y se construyó la tabla intermedia movie_actor para mapear correctamente cada actor con su película mediante sus respectivos id.
+
+De esta manera se resolvieron los problemas de estructura, codificación y relación entre las tablas, logrando una base de datos totalmente normalizada y lista para consultas complejas como “todas las películas de un actor” o “el elenco completo de una película”.
