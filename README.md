@@ -2,7 +2,10 @@
 ## 🤔 DESCRIPCIÓN 🤔
 En este trabajo estaremos mostrando el paso a paso del diseño, normalizacion y creacion de una base de datos de las 250 mejores peliculas de la historia segun IMDb actualizadas hasta el año 2024,  esto se va a crear desde un CSV descargado de una pagina de bases de datos libres.
 
-El .csv lo descargamos directamente de la pagina kaggle.com 
+El .csv lo descargamos de kaggle.com, si lo querés descargar el link es:
+
+https://www.kaggle.com/datasets/gauthamnair2005/imdb-best-250-movies-dataset?resource=download
+
 # INSTALACION📥
 ###  1) Clonar el repositorio con: 
 ```bash
