@@ -27,15 +27,15 @@ CREATE DATABASE movies;
 - Confirmar que estamos cargando en la base de datos que hemos creado, darle un nombre a la tabla que se va a crear, en nuestro caso le pusimos 'movies_cruda'.
 
 - Al confirmar el paso anterior nos pasa a la siguiente pantalla donde vemos las columnas que se crean a partir del csv, pero hay que confirmar que está bien configurada la forma de crear de Workbench, esto lo hacemos apretando el boton con 🔧 y la configuracion debe ser la siguiente para evitar errores:
-    ``` 
-    Field Separator: ,
+    
+    ` Field Separator` : `,`
 
-    Line Separator: LF
+    `Line Separator` : `LF`
 
-    Enclose Strings in: "
+    `Enclose Strings in` : `"`
 
-    null and NULL as SQL keyword: YES
-    ```
+    `null and NULL as SQL keyword` : `YES`
+    
 
 - Por ultimo, corroboramos que existan todas las columnas de nuestra tabla, le damos 'Next' y se nos crea la tabla cruda de la cual luego vamos a ir sacando los datos para poblar las tablas reales de nuestra DB.
 
@@ -314,14 +314,18 @@ A partir de esa división:
 
 De esta manera se resolvieron los problemas de estructura, codificación y relación entre las tablas, logrando una base de datos totalmente normalizada y lista para consultas complejas como “todas las películas de un actor” o “el elenco completo de una película”.
 
-# TITULO DE LA PARTE GRAFICA
+# INTERFAZ GRAFICA
 
-### 🎬 Descripción del archivo app.py
+### 🎬 Explicacion del desarrollo
+
+La interfaz gráfica del proyecto se desarrolló utilizando Streamlit, una librería de Python diseñada para crear aplicaciones web interactivas de manera rápida y sencilla, especialmente orientadas a la visualización y análisis de datos.
+
+Streamlit permite construir interfaces dinámicas sin necesidad de conocimientos avanzados de desarrollo web, integrando directamente código Python, consultas SQL y componentes visuales como tablas, filtros y gráficos.
 
 El archivo app.py implementa una aplicación web interactiva desarrollada con Streamlit para explorar, filtrar y analizar una base de datos de las mejores 250 películas según IMDb.
 Esta aplicación combina Python, SQLAlchemy y MySQL para realizar consultas dinámicas y visualizar los resultados en tablas y gráficos generados con Pandas y Streamlit Charts.
 
-### 🔗 Conexión a la base de datos
+## 🔗 Conexión a la base de datos
 
 La aplicación se conecta a una base de datos MySQL utilizando SQLAlchemy como motor de conexión.
 Los parámetros de conexión (usuario, contraseña, host, puerto y base de datos) se cargan de forma segura desde el archivo .streamlit/secrets.toml.
@@ -332,7 +336,7 @@ SET SESSION group_concat_max_len = 32768;
 ``` 
 Esto amplía el límite de caracteres permitido en las funciones GROUP_CONCAT, asegurando que los listados de actores o géneros no se trunquen al concatenarse.
 
-### 🎛️ Filtros de búsqueda
+## 🎛️ Filtros de búsqueda
 
 La interfaz permite aplicar filtros específicos sobre las películas almacenadas, ofreciendo al usuario un control preciso sobre la búsqueda.
 
@@ -345,7 +349,7 @@ La interfaz permite aplicar filtros específicos sobre las películas almacenada
 | **Género**   | Filtra películas pertenecientes a un género seleccionado. | `EXISTS` con subconsulta |
 | **Puntaje**  | Filtra por puntaje exacto (ej. 8.6).                      | `=`                      |
 
-### 🧮 Generación dinámica de consultas SQL
+## 🧮 Generación dinámica de consultas SQL
 
 La aplicación no usa consultas fijas: en su lugar, construye dinámicamente el WHERE y el ORDER BY según los filtros elegidos por el usuario.
 
@@ -379,7 +383,7 @@ AND EXISTS (
 
 Estas subconsultas garantizan que solo se muestren las películas donde el actor o género elegido tenga relación con el registro principal de movie.
 
-### 🔠 Función build_order_by()
+#### 🔠 Función build_order_by()
 
 Esta función genera el orden dinámico de la consulta principal, mapeando opciones legibles por el usuario a nombres de columnas reales de la base de datos.
 
@@ -393,7 +397,7 @@ Y si elige Título ascendente:
 ```sql
 ORDER BY m.title ASC, m.id ASC
 ```
-### 📋 Consulta principal (tabla de resultados)
+## 📋 Consulta principal (tabla de resultados)
 
 La consulta que alimenta la tabla principal obtiene los datos de películas junto con sus directores, géneros y actores asociados.
 Combina varias tablas mediante JOIN y agrupa los resultados por película.
@@ -421,7 +425,7 @@ LIMIT 500;
 ```
 La función GROUP_CONCAT permite mostrar en una sola celda todos los actores y géneros asociados a cada película.
 
-### 📊 Dashboard de estadísticas (Top N)
+### 📊 Dashboard de estadísticas (Top's)
 
 El dashboard genera gráficos de barras mostrando los elementos más frecuentes del conjunto de datos.
 El usuario puede definir cuántos mostrar (entre 3 y 10) y elegir si desea aplicar los filtros activos.
@@ -488,7 +492,7 @@ Cada uno de estos resultados se muestra en una pestaña (tab) diferente y se gra
 
 ### ⚙️ Tecnologías utilizadas
 ```
-Python 3.x — Lenguaje principal.
+Python 3.13.3 — Lenguaje principal.
 
 Streamlit — Framework para crear la interfaz web.
 
@@ -498,13 +502,21 @@ Pandas — Procesamiento y visualización de resultados.
 
 MySQL — Base de datos relacional.
 ```
-### 📁 Estructura del proyecto (ejemplo)
 
-```📦 best-movies-imdb/
-├── app.py
-├── requirements.txt
-├── README.md
-└── .streamlit/
-    └── secrets.toml
-``` 
+
+## 🎓 Créditos
+
+Esta aplicación web fue desarrollada por **alumnos de 3° Año** de la carrera **Tecnicatura Superior en Desarrollo de Software**, como parte del **Trabajo Práctico Final** de las materias:
+
+- **Base de Datos II**  
+- **Gestión y Proyectos de Software**
+
+El proyecto integra conocimientos de **modelado relacional**, **consultas SQL**, **desarrollo de interfaces interactivas** y **control de versiones** utilizando **GitHub**.
+
+## **AUTORES:**  
+>*Amarilla Fabricio*  
+
+>*Ponce Néstor Eduardo*
+
+
 
