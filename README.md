@@ -313,3 +313,198 @@ A partir de esa división:
 - Se insertaron en la tabla actor evitando duplicados (gracias al campo UNIQUE en act_name), y se construyó la tabla intermedia movie_actor para mapear correctamente cada actor con su película mediante sus respectivos id.
 
 De esta manera se resolvieron los problemas de estructura, codificación y relación entre las tablas, logrando una base de datos totalmente normalizada y lista para consultas complejas como “todas las películas de un actor” o “el elenco completo de una película”.
+
+# TITULO DE LA PARTE GRAFICA
+
+### 🎬 Descripción del archivo app.py
+
+El archivo app.py implementa una aplicación web interactiva desarrollada con Streamlit para explorar, filtrar y analizar una base de datos de las mejores 250 películas según IMDb.
+Esta aplicación combina Python, SQLAlchemy y MySQL para realizar consultas dinámicas y visualizar los resultados en tablas y gráficos generados con Pandas y Streamlit Charts.
+
+### 🔗 Conexión a la base de datos
+
+La aplicación se conecta a una base de datos MySQL utilizando SQLAlchemy como motor de conexión.
+Los parámetros de conexión (usuario, contraseña, host, puerto y base de datos) se cargan de forma segura desde el archivo .streamlit/secrets.toml.
+Durante la configuración inicial, se ejecuta la instrucción
+
+``` sql
+SET SESSION group_concat_max_len = 32768;
+``` 
+Esto amplía el límite de caracteres permitido en las funciones GROUP_CONCAT, asegurando que los listados de actores o géneros no se trunquen al concatenarse.
+
+### 🎛️ Filtros de búsqueda
+
+La interfaz permite aplicar filtros específicos sobre las películas almacenadas, ofreciendo al usuario un control preciso sobre la búsqueda.
+
+| Filtro       | Descripción                                               | Tipo de coincidencia     |
+| ------------ | --------------------------------------------------------- | ------------------------ |
+| **Título**   | Busca coincidencias parciales en el título.               | `LIKE`                   |
+| **Año**      | Filtra por año exacto.                                    | `=`                      |
+| **Director** | Filtra por un director seleccionado.                      | `=`                      |
+| **Actor**    | Filtra películas donde participa un actor específico.     | `EXISTS` con subconsulta |
+| **Género**   | Filtra películas pertenecientes a un género seleccionado. | `EXISTS` con subconsulta |
+| **Puntaje**  | Filtra por puntaje exacto (ej. 8.6).                      | `=`                      |
+
+### 🧮 Generación dinámica de consultas SQL
+
+La aplicación no usa consultas fijas: en su lugar, construye dinámicamente el WHERE y el ORDER BY según los filtros elegidos por el usuario.
+
+#### 🧱 Función build_where()
+
+Esta función genera la cláusula WHERE y un diccionario de parámetros seguros para evitar inyección SQL.
+
+Por ejemplo, si el usuario busca películas dirigidas por “Christopher Nolan” del año 2010 con puntaje 8.8, la consulta resultante será:
+
+```sql
+WHERE 1=1
+AND m.title LIKE '%Inception%'
+AND m.mov_year = 2010
+AND m.director_id = 5
+AND m.score = 8.8
+``` 
+
+Si el usuario elige un actor o género, se agregan subconsultas EXISTS para verificar las relaciones en las tablas intermedias
+
+```sql
+AND EXISTS (
+    SELECT 1 FROM movie_actor ma
+    WHERE ma.movie_id = m.id AND ma.actor_id = :aid
+)
+
+AND EXISTS (
+    SELECT 1 FROM movie_genre mg
+    WHERE mg.movie_id = m.id AND mg.genre_id = :gid
+)
+``` 
+
+Estas subconsultas garantizan que solo se muestren las películas donde el actor o género elegido tenga relación con el registro principal de movie.
+
+### 🔠 Función build_order_by()
+
+Esta función genera el orden dinámico de la consulta principal, mapeando opciones legibles por el usuario a nombres de columnas reales de la base de datos.
+
+si el usuario elige ordenar por Puntaje descendente, el resultado será:
+
+```sql
+ORDER BY m.score DESC, m.id ASC
+```
+Y si elige Título ascendente:
+
+```sql
+ORDER BY m.title ASC, m.id ASC
+```
+### 📋 Consulta principal (tabla de resultados)
+
+La consulta que alimenta la tabla principal obtiene los datos de películas junto con sus directores, géneros y actores asociados.
+Combina varias tablas mediante JOIN y agrupa los resultados por película.
+
+```sql
+SELECT
+    m.id        AS Pos,
+    m.title     AS Pelicula,
+    m.mov_year  AS Año,
+    m.score     AS Puntaje,
+    m.duration  AS Duracion,
+    d.dir_name  AS Director,
+    GROUP_CONCAT(DISTINCT g.gen_name ORDER BY g.gen_name SEPARATOR ', ') AS Generos,
+    GROUP_CONCAT(DISTINCT a.act_name ORDER BY a.act_name SEPARATOR ', ') AS Actores
+FROM movie AS m
+JOIN director AS d           ON d.id = m.director_id
+LEFT JOIN movie_actor  AS ma ON ma.movie_id = m.id
+LEFT JOIN actor        AS a  ON a.id = ma.actor_id
+LEFT JOIN movie_genre  AS mg ON mg.movie_id = m.id
+LEFT JOIN genre        AS g  ON g.id = mg.genre_id
+[WHERE dinámico]
+GROUP BY m.id, m.title, m.mov_year, m.score, m.duration, d.dir_name
+[ORDER BY dinámico]
+LIMIT 500;
+```
+La función GROUP_CONCAT permite mostrar en una sola celda todos los actores y géneros asociados a cada película.
+
+### 📊 Dashboard de estadísticas (Top N)
+
+El dashboard genera gráficos de barras mostrando los elementos más frecuentes del conjunto de datos.
+El usuario puede definir cuántos mostrar (entre 3 y 10) y elegir si desea aplicar los filtros activos.
+
+#### Cada gráfico utiliza una consulta SQL independiente.
+
+##### 🎭 Actores más frecuentes
+
+```sql
+SELECT
+    a.act_name AS Actor,
+    COUNT(DISTINCT ma.movie_id) AS Peliculas
+FROM actor a
+JOIN movie_actor ma ON ma.actor_id = a.id
+JOIN movie m ON m.id = ma.movie_id
+[WHERE dinámico]
+GROUP BY a.id, a.act_name
+ORDER BY Peliculas DESC, a.act_name ASC
+LIMIT :lim;
+```
+##### 🎬 Directores más frecuentes
+
+```sql
+SELECT
+    d.dir_name AS Director,
+    COUNT(*) AS Peliculas
+FROM movie m
+JOIN director d ON d.id = m.director_id
+[WHERE dinámico]
+GROUP BY d.id, d.dir_name
+ORDER BY Peliculas DESC, d.dir_name ASC
+LIMIT :lim;
+```
+
+##### 📅 Años con más películas
+
+```sql 
+SELECT
+    m.mov_year AS Año,
+    COUNT(*) AS Peliculas
+FROM movie m
+[WHERE dinámico]
+GROUP BY m.mov_year
+ORDER BY Peliculas DESC, m.mov_year ASC
+LIMIT :lim;
+```
+
+##### 🏷️ Géneros más populares
+
+```sql
+SELECT
+    g.gen_name AS Genero,
+    COUNT(DISTINCT mg.movie_id) AS Peliculas
+FROM genre g
+JOIN movie_genre mg ON mg.genre_id = g.id
+JOIN movie m ON m.id = mg.movie_id
+[WHERE dinámico]
+GROUP BY g.id, g.gen_name
+ORDER BY Peliculas DESC, g.gen_name ASC
+LIMIT :lim;
+```
+
+Cada uno de estos resultados se muestra en una pestaña (tab) diferente y se grafica con un gráfico de barras usando los datos obtenidos.
+
+### ⚙️ Tecnologías utilizadas
+```
+Python 3.x — Lenguaje principal.
+
+Streamlit — Framework para crear la interfaz web.
+
+SQLAlchemy — Gestión de conexión y consultas SQL.
+
+Pandas — Procesamiento y visualización de resultados.
+
+MySQL — Base de datos relacional.
+```
+### 📁 Estructura del proyecto (ejemplo)
+
+```📦 best-movies-imdb/
+├── app.py
+├── requirements.txt
+├── README.md
+└── .streamlit/
+    └── secrets.toml
+``` 
+
