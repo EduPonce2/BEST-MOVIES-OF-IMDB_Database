@@ -15,7 +15,7 @@ git clone https://github.com/EduPonce2/BEST-MOVIES-OF-IMDB_Database.git
 # DIAGRAMA ENTIDAD-RELACION
 ![ERD Movies](img/diagrama.png)
 
-# EXPLICACION SOBRE COMO FUIMOS ARMANDO LA BASE DE DATOS ✍🏻
+# ***EXPLICACION SOBRE COMO FUIMOS ARMANDO LA BASE DE DATOS*** ✍🏻
 Después de descargar el .csv, lo que hicimos fue exportarlo a MySQL WORKBENCH, lo que se hace para importarlo es lo siguiente:
 -Crear la base de datos con:
 ```sql
