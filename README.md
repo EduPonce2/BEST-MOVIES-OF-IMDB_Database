@@ -40,8 +40,8 @@ CREATE DATABASE movies;
 - Por ultimo, corroboramos que existan todas las columnas de nuestra tabla, le damos 'Next' y se nos crea la tabla cruda de la cual luego vamos a ir sacando los datos para poblar las tablas reales de nuestra DB.
 
 
-### Creamos las tablas de la siguiente forma: 
-### 1) Tabla Director
+### ***Creamos las tablas de la siguiente forma:*** 
+### 1) **Tabla Director**
 
 ``` sql
 CREATE TABLE director (
@@ -50,7 +50,7 @@ dir_name VARCHAR(100) NOT NULL UNIQUE
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-### 2) Tabla Genero
+### 2) **Tabla Genero**
 
 ``` sql
 CREATE TABLE genre (
@@ -58,7 +58,7 @@ id INT NOT NULL auto_increment PRIMARY KEY,
 gen_name VARCHAR(100) NOT NULL UNIQUE
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
-### 3) Tabla Actor
+### 3) **Tabla Actor**
 
 ``` sql
 CREATE TABLE actor (
@@ -83,9 +83,9 @@ CONSTRAINT uq_movie_title_year UNIQUE (title, mov_year)
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-## Seguimos con sus Relaciones 🔗
+## ***Seguimos con sus Relaciones 🔗***
 
-### 1) Tabla intermedia Pelicula Actor
+### 1) **Tabla intermedia Pelicula Actor**
 ``` sql
  CREATE TABLE movie_actor (
 movie_id INT NOT NULL,
@@ -96,7 +96,7 @@ PRIMARY KEY (movie_id, actor_id)
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-### 2) Tabla intermedia Pelicula Género
+### 2) **Tabla intermedia Pelicula Género**
 ``` sql
 CREATE TABLE movie_genre (
 genre_id INT NOT NULL,
@@ -107,10 +107,10 @@ PRIMARY KEY(movie_id, genre_id)
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-# 🧩 EXPLICACION DE LOS SCRIPTS SQL 
+# 🧩 ***EXPLICACION DE LOS SCRIPTS SQL*** 
  Este conjunto de sentencias SQL se utiliza para limpiar, normalizar y poblar las tablas del modelo relacional a partir de los datos crudos almacenados en movies_cruda.
 
-### 🎬 1️⃣ Inserción de Directores 
+### 🎬 1️⃣ **Inserción de Directores**
 
 ``` sql
 INSERT INTO director (dir_name)
@@ -122,7 +122,7 @@ Extrae los nombres de los directores desde movies_cruda.
 Elimina duplicados (DISTINCT) y espacios en blanco (TRIM).
 Inserta cada director único en la tabla director.
 
-### 🎭 2️⃣ Inserción de Géneros
+### 🎭 2️⃣ **Inserción de Géneros**
 
 ``` sql
 INSERT IGNORE INTO genre (gen_name)
@@ -149,7 +149,7 @@ Limpia espacios y genera una fila por cada género.
 Inserta solo géneros distintos (DISTINCT) en la tabla genre.
 El INSERT IGNORE evita duplicados.
 
-### 🎥 3️⃣ Inserción de Películas
+### 🎥 3️⃣ **Inserción de Películas**
 
 ``` sql
 INSERT INTO movie (title, mov_year, score, duration, synopsis, director_id)
@@ -170,7 +170,7 @@ rating → número decimal (DECIMAL(3,1)).
 duration → minutos totales (sumando horas y minutos).
 Asocia cada película a su director mediante director_id.
 
-### 🎞️ 4️⃣ Relación Película ↔ Género
+### 🎞️ 4️⃣ **Relación Película ↔ Género**
 
 ``` sql
 INSERT IGNORE INTO movie_genre (movie_id, genre_id)
@@ -199,7 +199,7 @@ Une cada película con todos sus géneros.
 Si una película tiene varios géneros, genera una fila por cada combinación.
 Usa INSERT IGNORE para evitar duplicados.
 
-### 👥 5️⃣ Creación de Tabla Temporal de Actores
+### 👥 5️⃣ **Creación de Tabla Temporal de Actores**
 
 ``` sql
 DROP TEMPORARY TABLE IF EXISTS _actors_temp;
@@ -213,7 +213,7 @@ Crea una tabla temporal que almacenará los pares película - actor.
 Se usa como paso intermedio antes de insertar los datos finales.
 Mas adelante explicaremos por qué fue necesario este paso.
 
-### 🌟 6️⃣ Poblar la Tabla Temporal
+### 🌟 6️⃣ **Poblar la Tabla Temporal**
 
 ``` sql
 INSERT INTO _actors_temp (movie_id, actor_name)
@@ -238,7 +238,7 @@ WHERE TRIM(j.actor) <> '';
 Extrae los actores del campo stars, que viene separado por #.
 Limpia los valores y crea una fila por cada actor con su película correspondiente.
 
-### 🔍 7️⃣ Verificación de la Carga
+### 🔍 7️⃣ **Verificación de la Carga**
 
 ``` sql
 SELECT * FROM _actors_temp ORDER BY movie_id, actor_name LIMIT 20;
@@ -247,7 +247,7 @@ SELECT COUNT(*) FROM _actors_temp;
 
 Permite verificar visualmente que los datos de la tabla temporal se cargaron correctamente y contar la cantidad total de registros.
 
-### 🎬 8️⃣ Inserción Final de Actores y Relaciones
+### 🎬 8️⃣ **Inserción Final de Actores y Relaciones**
 
 ``` sql
 INSERT IGNORE INTO actor (act_name)
@@ -314,9 +314,9 @@ A partir de esa división:
 
 De esta manera se resolvieron los problemas de estructura, codificación y relación entre las tablas, logrando una base de datos totalmente normalizada y lista para consultas complejas como “todas las películas de un actor” o “el elenco completo de una película”.
 
-# INTERFAZ GRAFICA
+# ***INTERFAZ GRAFICA***
 
-### 🎬 Explicacion del desarrollo
+### 🎬 **Explicacion del desarrollo**
 
 La interfaz gráfica del proyecto se desarrolló utilizando Streamlit, una librería de Python diseñada para crear aplicaciones web interactivas de manera rápida y sencilla, especialmente orientadas a la visualización y análisis de datos.
 
@@ -325,7 +325,7 @@ Streamlit permite construir interfaces dinámicas sin necesidad de conocimientos
 El archivo app.py implementa una aplicación web interactiva desarrollada con Streamlit para explorar, filtrar y analizar una base de datos de las mejores 250 películas según IMDb.
 Esta aplicación combina Python, SQLAlchemy y MySQL para realizar consultas dinámicas y visualizar los resultados en tablas y gráficos generados con Pandas y Streamlit Charts.
 
-## 🔗 Conexión a la base de datos
+## 🔗 ***Conexión a la base de datos***
 
 La aplicación se conecta a una base de datos MySQL utilizando SQLAlchemy como motor de conexión.
 Los parámetros de conexión (usuario, contraseña, host, puerto y base de datos) se cargan de forma segura desde el archivo .streamlit/secrets.toml.
@@ -336,7 +336,7 @@ SET SESSION group_concat_max_len = 32768;
 ``` 
 Esto amplía el límite de caracteres permitido en las funciones GROUP_CONCAT, asegurando que los listados de actores o géneros no se trunquen al concatenarse.
 
-## 🎛️ Filtros de búsqueda
+## 🎛️ **Filtros de búsqueda**
 
 La interfaz permite aplicar filtros específicos sobre las películas almacenadas, ofreciendo al usuario un control preciso sobre la búsqueda.
 
@@ -349,11 +349,11 @@ La interfaz permite aplicar filtros específicos sobre las películas almacenada
 | **Género**   | Filtra películas pertenecientes a un género seleccionado. | `EXISTS` con subconsulta |
 | **Puntaje**  | Filtra por puntaje exacto (ej. 8.6).                      | `=`                      |
 
-## 🧮 Generación dinámica de consultas SQL
+## 🧮 ***Generación dinámica de consultas SQL***
 
 La aplicación no usa consultas fijas: en su lugar, construye dinámicamente el WHERE y el ORDER BY según los filtros elegidos por el usuario.
 
-#### 🧱 Función build_where()
+#### 🧱 **Función build_where()**
 
 Esta función genera la cláusula WHERE y un diccionario de parámetros seguros para evitar inyección SQL.
 
@@ -383,7 +383,7 @@ AND EXISTS (
 
 Estas subconsultas garantizan que solo se muestren las películas donde el actor o género elegido tenga relación con el registro principal de movie.
 
-#### 🔠 Función build_order_by()
+#### 🔠 **Función build_order_by()**
 
 Esta función genera el orden dinámico de la consulta principal, mapeando opciones legibles por el usuario a nombres de columnas reales de la base de datos.
 
@@ -397,7 +397,7 @@ Y si elige Título ascendente:
 ```sql
 ORDER BY m.title ASC, m.id ASC
 ```
-## 📋 Consulta principal (tabla de resultados)
+## 📋 ***Consulta principal (tabla de resultados)***
 
 La consulta que alimenta la tabla principal obtiene los datos de películas junto con sus directores, géneros y actores asociados.
 Combina varias tablas mediante JOIN y agrupa los resultados por película.
@@ -425,14 +425,14 @@ LIMIT 500;
 ```
 La función GROUP_CONCAT permite mostrar en una sola celda todos los actores y géneros asociados a cada película.
 
-### 📊 Dashboard de estadísticas (Top's)
+### 📊 **Dashboard de estadísticas (Top's)**
 
 El dashboard genera gráficos de barras mostrando los elementos más frecuentes del conjunto de datos.
 El usuario puede definir cuántos mostrar (entre 3 y 10) y elegir si desea aplicar los filtros activos.
 
 #### Cada gráfico utiliza una consulta SQL independiente.
 
-##### 🎭 Actores más frecuentes
+##### 🎭 **Actores más frecuentes**
 
 ```sql
 SELECT
@@ -446,7 +446,7 @@ GROUP BY a.id, a.act_name
 ORDER BY Peliculas DESC, a.act_name ASC
 LIMIT :lim;
 ```
-##### 🎬 Directores más frecuentes
+##### 🎬 **Directores más frecuentes**
 
 ```sql
 SELECT
@@ -460,7 +460,7 @@ ORDER BY Peliculas DESC, d.dir_name ASC
 LIMIT :lim;
 ```
 
-##### 📅 Años con más películas
+##### 📅 **Años con más películas**
 
 ```sql 
 SELECT
@@ -473,7 +473,7 @@ ORDER BY Peliculas DESC, m.mov_year ASC
 LIMIT :lim;
 ```
 
-##### 🏷️ Géneros más populares
+##### 🏷️ **Géneros más populares**
 
 ```sql
 SELECT
@@ -490,7 +490,7 @@ LIMIT :lim;
 
 Cada uno de estos resultados se muestra en una pestaña (tab) diferente y se grafica con un gráfico de barras usando los datos obtenidos.
 
-### ⚙️ Tecnologías utilizadas
+### ⚙️ **Tecnologías utilizadas**
 ```
 Python 3.13.3 — Lenguaje principal.
 
@@ -504,7 +504,7 @@ MySQL — Base de datos relacional.
 ```
 
 
-## 🎓 Créditos
+## 🎓 ***Créditos***
 
 Esta aplicación web fue desarrollada por **alumnos de 3° Año** de la carrera **Tecnicatura Superior en Desarrollo de Software**, como parte del **Trabajo Práctico Final** de las materias:
 
