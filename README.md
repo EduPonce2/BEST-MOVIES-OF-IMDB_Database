@@ -1,5 +1,5 @@
 # *🍿 IMDb Top 250 Database 🍿*
-## 🤔 DESCRIPCIÓN 🤔
+## 🤔 **DESCRIPCIÓN** 🤔
 En este trabajo estaremos mostrando el paso a paso del diseño, normalizacion y creacion de una base de datos de las 250 mejores peliculas de la historia segun IMDb actualizadas hasta el año 2024,  esto se va a crear desde un CSV descargado de una pagina de bases de datos libres.
 
 El .csv lo descargamos de kaggle.com, si lo querés descargar el link es:
@@ -266,7 +266,7 @@ JOIN actor a
 Estas sentencias sirven para migrar datos desde una tabla temporal _actors_temp hacia el modelo final de base de datos:
 La primera carga los actores nuevos.
 La segunda vincula los actores con sus películas, creando relaciones en movie_actor.
-# 🚨 ERRORES O PROBLEMAS QUE APARECIERON 🚨
+# 🚨 ***ERRORES O PROBLEMAS QUE APARECIERON*** 🚨
 
 ## 🧩 Tabla Genre (Género)
 
