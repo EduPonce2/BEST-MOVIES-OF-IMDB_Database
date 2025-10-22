@@ -12,8 +12,6 @@ https://www.kaggle.com/datasets/gauthamnair2005/imdb-best-250-movies-dataset?res
 git clone https://github.com/EduPonce2/BEST-MOVIES-OF-IMDB_Database.git
 ```
 ### 2) Cargar el script o archivo sql  en el repositorio de su base de datos de preferencia 
-# DIAGRAMA ENTIDAD-RELACION
-![ERD Movies](img/diagrama.png)
 
 # ***EXPLICACION SOBRE COMO FUIMOS ARMANDO LA BASE DE DATOS*** ✍🏻
 Después de descargar el .csv, lo que hicimos fue exportarlo a MySQL WORKBENCH, lo que se hace para importarlo es lo siguiente:
@@ -38,6 +36,9 @@ CREATE DATABASE movies;
     
 
 - Por ultimo, corroboramos que existan todas las columnas de nuestra tabla, le damos 'Next' y se nos crea la tabla cruda de la cual luego vamos a ir sacando los datos para poblar las tablas reales de nuestra DB.
+
+# DIAGRAMA ENTIDAD-RELACION
+![ERD Movies](img/diagrama.png)
 
 
 ### ***Creamos las tablas de la siguiente forma:*** 
