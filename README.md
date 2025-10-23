@@ -11,14 +11,14 @@ https://www.kaggle.com/datasets/gauthamnair2005/imdb-best-250-movies-dataset?res
 ```bash
 git clone https://github.com/EduPonce2/BEST-MOVIES-OF-IMDB_Database.git
 ```
-### 2) Cargar el script o archivo sql  en el repositorio de su base de datos de preferencia 
-
+### 2) Cargar el script o archivo sql a su base de datos de preferencia 
+Mas abajo te seguimos exlicando paso a paso como hacerlo para que puedas copiar vos mismo lo que hicimos.
 # ***EXPLICACION SOBRE COMO FUIMOS ARMANDO LA BASE DE DATOS*** ✍🏻
 Después de descargar el .csv, lo que hicimos fue exportarlo a MySQL WORKBENCH, lo que se hace para importarlo es lo siguiente:
--Crear la base de datos con:
-```sql
-CREATE DATABASE movies;
-```
+- Crear la base de datos con:
+  ```sql
+  CREATE DATABASE movies;
+  ```
 - Una vez creada la base de datos, en el panel lateral de Workbench, hacer click derecho en la seccion que dice 'Tables' que pertenece a la DB que hemos creado y elegir la opcion 'Table Data Import Wizard'.
 
 - Elegir el .csv desde el boton 'Browse', una vez elegido confirmar con 'Next'. 
@@ -384,6 +384,10 @@ AND EXISTS (
 
 Estas subconsultas garantizan que solo se muestren las películas donde el actor o género elegido tenga relación con el registro principal de movie.
 
+### Nota breve sobre WHERE 1=1
+
+Se usa como punto de partida neutro: es una condición siempre verdadera, así que no filtra. Su objetivo es simplificar la construcción de filtros opcionales: permite agregar todas las condiciones con AND sin pensar si alguna es la primera.
+
 #### 🔠 **Función build_order_by()**
 
 Esta función genera el orden dinámico de la consulta principal, mapeando opciones legibles por el usuario a nombres de columnas reales de la base de datos.
@@ -518,6 +522,3 @@ El proyecto integra conocimientos de **modelado relacional**, **consultas SQL**,
 >*Amarilla Fabricio*  
 
 >*Ponce Néstor Eduardo*
-
-
-
