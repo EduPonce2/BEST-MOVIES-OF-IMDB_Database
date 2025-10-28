@@ -11,14 +11,14 @@ https://www.kaggle.com/datasets/gauthamnair2005/imdb-best-250-movies-dataset?res
 ```bash
 git clone https://github.com/EduPonce2/BEST-MOVIES-OF-IMDB_Database.git
 ```
-### 2) Cargar el script o archivo sql a su base de datos de preferencia 
-Mas abajo te seguimos exlicando paso a paso como hacerlo para que puedas copiar vos mismo lo que hicimos.
+### 2) Cargar el script o archivo sql  en el repositorio de su base de datos de preferencia 
+
 # ***EXPLICACION SOBRE COMO FUIMOS ARMANDO LA BASE DE DATOS*** ✍🏻
 Después de descargar el .csv, lo que hicimos fue exportarlo a MySQL WORKBENCH, lo que se hace para importarlo es lo siguiente:
-- Crear la base de datos con:
-  ```sql
-  CREATE DATABASE movies;
-  ```
+-Crear la base de datos con:
+```sql
+CREATE DATABASE movies;
+```
 - Una vez creada la base de datos, en el panel lateral de Workbench, hacer click derecho en la seccion que dice 'Tables' que pertenece a la DB que hemos creado y elegir la opcion 'Table Data Import Wizard'.
 
 - Elegir el .csv desde el boton 'Browse', una vez elegido confirmar con 'Next'. 
@@ -384,10 +384,6 @@ AND EXISTS (
 
 Estas subconsultas garantizan que solo se muestren las películas donde el actor o género elegido tenga relación con el registro principal de movie.
 
-### Nota breve sobre WHERE 1=1
-
-Se usa como punto de partida neutro: es una condición siempre verdadera, así que no filtra. Su objetivo es simplificar la construcción de filtros opcionales: permite agregar todas las condiciones con AND sin pensar si alguna es la primera.
-
 #### 🔠 **Función build_order_by()**
 
 Esta función genera el orden dinámico de la consulta principal, mapeando opciones legibles por el usuario a nombres de columnas reales de la base de datos.
@@ -495,6 +491,36 @@ LIMIT :lim;
 
 Cada uno de estos resultados se muestra en una pestaña (tab) diferente y se grafica con un gráfico de barras usando los datos obtenidos.
 
+# 🧩 ***¿Qué es un WHERE dinámico?***
+
+Un WHERE dinámico es una forma de construir consultas SQL de manera flexible desde un lenguaje de programación (como Python).
+Permite que la parte del WHERE se adapte automáticamente según los filtros o condiciones que el usuario elija.
+
+En lugar de tener una consulta fija, el sistema va agregando condiciones solo cuando son necesarias.
+
+### 🎬 **Supongamos que tenemos una tabla movie con estas columnas:**
+```
+title → nombre de la película
+
+mov_year → año
+
+genre → género
+
+director → director
+```
+
+Queremos que el usuario pueda buscar películas filtrando por año, género o director, pero que esos filtros sean opcionales.
+
+🧮 **Ejemplo de funcionamiento**
+
+| Filtros elegidos por el usuario | Resultado del WHERE dinámico                 |
+| ------------------------------- | -------------------------------------------- |
+| Solo año                        | `WHERE mov_year = 2020`                      |
+| Solo género                     | `WHERE genre = 'Acción'`                     |
+| Año y género                    | `WHERE mov_year = 2020 AND genre = 'Acción'` |
+| Ninguno                         | `WHERE 1=1` *(sin filtros)*                  |
+
+
 ### ⚙️ **Tecnologías utilizadas**
 ```
 Python 3.13.3 — Lenguaje principal.
@@ -522,3 +548,6 @@ El proyecto integra conocimientos de **modelado relacional**, **consultas SQL**,
 >*Amarilla Fabricio*  
 
 >*Ponce Néstor Eduardo*
+
+
+
