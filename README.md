@@ -493,7 +493,7 @@ Cada uno de estos resultados se muestra en una pestaña (tab) diferente y se gra
 
 # 🧩 ***¿Qué es un WHERE dinámico?***
 
-Un WHERE dinámico es una forma de construir consultas SQL de manera flexible desde un lenguaje de programación (como Python).
+Un WHERE dinámico es una forma de construir consultas SQL de manera flexible desde un lenguaje de programación.
 Permite que la parte del WHERE se adapte automáticamente según los filtros o condiciones que el usuario elija.
 
 En lugar de tener una consulta fija, el sistema va agregando condiciones solo cuando son necesarias.
